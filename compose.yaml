@@ -1,0 +1,7 @@
+services:
+  locator:
+    build: .
+    volumes:
+      - ./input:/data/input:ro
+      - ./output:/data/output
+    command: ["--input", "/data/input", "--output", "/data/output"]
