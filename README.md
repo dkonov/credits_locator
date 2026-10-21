@@ -46,3 +46,32 @@ python -m unittest discover -s tests -v
 ```
 
 Requires Python dependencies listed in `requirements.txt`.
+
+
+## v0.3 — frame-level credits extraction
+
+Run the existing locator first, then run the **separate extractor**. It keeps the
+v0.2 detection behavior unchanged and does not require any cloud API.
+
+```bash
+docker compose build
+docker compose run --rm --entrypoint python locator /app/extract_credits.py \
+  --video /data/input/za_steklom.mov \
+  --report /data/output/za_steklom/report.json \
+  --output /data/output/za_steklom/credits_raw.json \
+  --step 1 --boundary-step 0.5
+```
+
+The extractor generates:
+- `boundary_estimate`: OCR-based boundary refinement (approximate, not frame-exact);
+- `frames[].lines[]`: full OCR text, confidence, **normalized bounding box**
+  `[left, top, right, bottom]`, and a tentative column label;
+- `merged_lines[]`: deduplicated lines and timestamps of first/last observation.
+
+All original frame-level results are preserved even if the merge is wrong.
+Two-column detection is a *heuristic*; it does not yet associate people with
+their film jobs. Running `--step 0.5` improves coverage at additional cost.
+`--width 1920` avoids downsizing HD frames, but cannot reconstruct detail lost
+in a highly compressed source. No LLM is used in this release.
+
+Run Python tests using `python -m unittest discover -s tests -v`.
