@@ -4,5 +4,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg tesserac
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY locator.py extract_credits.py structure_credits.py .
+COPY locator.py extract_credits.py structure_credits.py credits_v05_import.py .
 ENTRYPOINT ["python", "/app/locator.py"]

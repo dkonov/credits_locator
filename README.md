@@ -93,3 +93,34 @@ Output includes `tracked_lines`, `credits`, and `review`. The parser is
 intentionally conservative: missing role labels are sent to review instead
 of guessed. This prototype targets centered two-column scrolling credits.
 It has not been validated on arbitrary layouts or all film languages.
+
+## v0.5 — identity-safe database import
+
+Film credits are **mentions**, not confirmed identities. Equal names are never
+automatically merged. Each mention is stored independently with its role and
+evidence; `person_id` remains NULL. Candidate identities are represented
+separately in `identity_candidates` and can be rejected or reviewed.
+
+A self-contained SQLite database is used for the pilot (no extra server).
+To import previously generated results:
+
+```bash
+docker compose build
+docker compose run --rm --entrypoint python locator /app/credits_v05_import.py \
+  --input /data/output/za_steklom/credits_structured.json \
+  --db /data/output/credits.sqlite
+```
+
+Repeated imports of unchanged data are idempotent. Never use the name as a
+unique key; the source/evidence fingerprint is used instead. You can later
+migrate the same conceptual schema to PostgreSQL.
+
+To see all credits including namesakes:
+
+```sql
+SELECT credited_name, credited_role, category, person_id
+FROM credit_mentions ORDER BY id;
+```
+
+No automatic `persons` rows are created. Identity resolution is reserved for
+a separate reviewed workflow. Uncertain credits remain `unresolved`.
