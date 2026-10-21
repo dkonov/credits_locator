@@ -75,3 +75,21 @@ their film jobs. Running `--step 0.5` improves coverage at additional cost.
 in a highly compressed source. No LLM is used in this release.
 
 Run Python tests using `python -m unittest discover -s tests -v`.
+
+## v0.4 — scrolling lines and preliminary film crew records
+
+Reconstruct physical moving text lines from v0.3 `credits_raw.json` using
+estimated vertical scrolling speed and OCR coordinates. Repeated names in
+different rows remain separate credits; every record links to evidence IDs.
+
+```bash
+docker compose build
+docker compose run --rm --entrypoint python locator /app/structure_credits.py \
+  --input /data/output/za_steklom/credits_raw.json \
+  --output /data/output/za_steklom/credits_structured.json
+```
+
+Output includes `tracked_lines`, `credits`, and `review`. The parser is
+intentionally conservative: missing role labels are sent to review instead
+of guessed. This prototype targets centered two-column scrolling credits.
+It has not been validated on arbitrary layouts or all film languages.
